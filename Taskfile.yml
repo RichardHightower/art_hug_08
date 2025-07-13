@@ -1,0 +1,119 @@
+version: '3'
+
+tasks:
+  default:
+    desc: "Show available tasks"
+    cmds:
+      - task --list
+
+  setup:
+    desc: "Set up the development environment"
+    cmds:
+      - poetry install
+      - cp .env.example .env || true
+      - echo "Environment setup complete!"
+
+  run:
+    desc: "Run the main workflow demonstration"
+    cmds:
+      - poetry run python -m src.main
+
+  pipelines:
+    desc: "Run custom pipeline examples"
+    cmds:
+      - poetry run python -m src.custom_pipelines
+
+  data:
+    desc: "Run data workflow demonstrations"
+    cmds:
+      - poetry run python -m src.data_workflows
+
+  optimize:
+    desc: "Run optimization benchmarks"
+    cmds:
+      - poetry run python -m src.optimization
+
+  synthetic:
+    desc: "Run synthetic data generation"
+    cmds:
+      - poetry run python -m src.synthetic_data
+
+  retail:
+    desc: "Run retail workflow example"
+    cmds:
+      - poetry run python examples/retail_workflow.py
+
+  edge:
+    desc: "Run edge deployment demonstration"
+    cmds:
+      - poetry run python -m src.edge_deployment
+
+  peft:
+    desc: "Run PEFT/LoRA demonstration"
+    cmds:
+      - poetry run python -m src.peft_lora
+
+  flash:
+    desc: "Run Flash Attention demonstration"
+    cmds:
+      - poetry run python -m src.flash_attention
+
+  quantization:
+    desc: "Run advanced quantization demonstration"
+    cmds:
+      - poetry run python -m src.advanced_quantization
+
+  diffusion:
+    desc: "Run diffusion generation demonstration"
+    cmds:
+      - poetry run python -m src.diffusion_generation
+
+  production:
+    desc: "Run production workflow demonstration"
+    cmds:
+      - poetry run python -m src.production_workflows
+
+  test:
+    desc: "Run all tests"
+    cmds:
+      - poetry run pytest tests/ -v
+
+  test-coverage:
+    desc: "Run tests with coverage"
+    cmds:
+      - poetry run pytest tests/ --cov=src --cov-report=html
+
+  format:
+    desc: "Format code with black"
+    cmds:
+      - poetry run black src/ tests/
+
+  lint:
+    desc: "Lint code with ruff"
+    cmds:
+      - poetry run ruff check src/ tests/
+
+  clean:
+    desc: "Clean up temporary files"
+    cmds:
+      - find . -type d -name "__pycache__" -exec rm -rf {} +
+      - find . -type f -name "*.pyc" -delete
+      - rm -rf .pytest_cache/
+      - rm -rf htmlcov/
+      - rm -rf .coverage
+
+  notebook:
+    desc: "Start Jupyter notebook server"
+    cmds:
+      - poetry run jupyter notebook
+
+  benchmark:
+    desc: "Run performance benchmarks"
+    cmds:
+      - poetry run python -m src.optimization --benchmark
+
+  profile:
+    desc: "Profile memory usage"
+    cmds:
+      - poetry run mprof run python -m src.data_workflows
+      - poetry run mprof plot
