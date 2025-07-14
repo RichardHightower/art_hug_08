@@ -1,7 +1,7 @@
 version: '3'
 
 vars:
-  PYTHON_VERSION: 3.12.10
+  PYTHON_VERSION: 3.12.9
 
 tasks:
   default:

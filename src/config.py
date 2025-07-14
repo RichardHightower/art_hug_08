@@ -26,6 +26,16 @@ DEVICE = os.getenv("DEFAULT_DEVICE", get_device())
 BATCH_SIZE = int(os.getenv("BATCH_SIZE", "32"))
 MAX_LENGTH = int(os.getenv("MAX_LENGTH", "512"))
 
+# Helper function for pipeline device configuration
+def get_pipeline_device():
+    """Get device ID for HuggingFace pipelines."""
+    if DEVICE == "cuda":
+        return 0  # GPU 0
+    elif DEVICE == "mps":
+        return 0  # MPS device 0
+    else:
+        return -1  # CPU
+
 # Model settings
 DEFAULT_SENTIMENT_MODEL = os.getenv(
     "SENTIMENT_MODEL",

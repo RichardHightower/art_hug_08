@@ -76,6 +76,8 @@ def demonstrate_optimization():
 
     if DEVICE == "cuda":
         model = model.cuda()
+    elif DEVICE == "mps":
+        model = model.to("mps")
 
     # Baseline performance
     base_time, base_mem = benchmark_inference(
@@ -93,15 +95,22 @@ def demonstrate_optimization():
 
     # Quantize model
     if DEVICE == "cpu":
-        quantized_model = torch.quantization.quantize_dynamic(
-            model.cpu(), {torch.nn.Linear}, dtype=torch.qint8
-        )
+        try:
+            quantized_model = torch.quantization.quantize_dynamic(
+                model.cpu(), {torch.nn.Linear}, dtype=torch.qint8
+            )
 
-        q_time, q_mem = benchmark_inference(
-            quantized_model, tokenizer, test_texts, "INT8 Quantized"
-        )
+            q_time, q_mem = benchmark_inference(
+                quantized_model, tokenizer, test_texts, "INT8 Quantized"
+            )
 
-        print(f"  Speedup: {base_time/q_time:.2f}x")
+            print(f"  Speedup: {base_time/q_time:.2f}x")
+        except RuntimeError as e:
+            if "NoQEngine" in str(e) or "quantized" in str(e):
+                print("  Skipping: Quantization not supported on this platform (macOS ARM)")
+                print("  Note: Quantization requires x86_64 architecture or specific ARM builds")
+            else:
+                raise
     else:
         print("  Skipping (CPU only)")
 
@@ -181,6 +190,8 @@ def demonstrate_optimization():
 
     if DEVICE == "cuda":
         small_model = small_model.cuda()
+    elif DEVICE == "mps":
+        small_model = small_model.to("mps")
 
     small_time, small_mem = benchmark_inference(
         small_model, small_tokenizer, test_texts, "DistilBERT (smaller)"
@@ -202,9 +213,9 @@ def demonstrate_optimization():
     print("| Technique | Speedup | Size Reduction | Use Case |")
     print("|-----------|---------|----------------|----------|")
     print("| Batching (32) | ~8x | 0% | GPU servers |")
-    if DEVICE == "cpu":
+    if DEVICE == "cpu" and 'q_time' in locals():
         print(f"| INT8 Quant | {base_time/q_time:.1f}x | 75% | CPU/Edge |")
-    if DEVICE == "cuda":
+    if DEVICE == "cuda" and 'fp16_time' in locals():
         print(f"| FP16 | {base_time/fp16_time:.1f}x | 50% | Modern GPUs |")
     print(
         f"| DistilBERT | {base_time/small_time:.1f}x | {(param_size-small_param_size)/param_size*100:.0f}% | General use |"

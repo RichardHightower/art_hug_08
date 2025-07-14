@@ -81,18 +81,24 @@ class EdgeDeploymentPipeline:
         # Optimize if requested
         if optimize:
             print("📊 Applying ONNX optimizations...")
-            optimizer = ORTOptimizer.from_pretrained(self.model_name)
+            try:
+                # Try to load the optimizer with the model
+                optimizer = ORTOptimizer.from_pretrained(self.model_name)
+                
+                optimization_config = OptimizationConfig(
+                    optimization_level=2,
+                    optimize_for_gpu=False,
+                    fp16=False,  # Keep FP32 for CPU
+                    enable_transformers_specific_optimizations=True,
+                )
 
-            optimization_config = OptimizationConfig(
-                optimization_level=2,
-                optimize_for_gpu=False,
-                fp16=False,  # Keep FP32 for CPU
-                enable_transformers_specific_optimizations=True,
-            )
-
-            optimizer.optimize(
-                optimization_config=optimization_config, save_dir=output_path
-            )
+                optimizer.optimize(
+                    optimization_config=optimization_config, save_dir=output_path
+                )
+            except (ValueError, Exception) as e:
+                print(f"⚠️  Could not apply ONNX optimizations: {str(e)}")
+                print("   Using unoptimized ONNX model (still functional)")
+                # The export itself succeeded, so we can continue
 
         # Get final size
         onnx_size = os.path.getsize(onnx_path)
@@ -287,41 +293,69 @@ def demonstrate_edge_deployment():
 
     # 1. Export to ONNX
     print("\n1️⃣ ONNX Export")
-    onnx_metrics = pipeline.export_to_onnx()
+    try:
+        onnx_metrics = pipeline.export_to_onnx()
+    except Exception as e:
+        print(f"⚠️  ONNX export encountered an issue: {str(e)}")
+        print("   Skipping ONNX-related demos")
+        onnx_metrics = None
 
     # 2. Mobile optimization
     print("\n2️⃣ Mobile Optimization")
-    mobile_metrics = pipeline.export_for_mobile()
+    try:
+        mobile_metrics = pipeline.export_for_mobile()
+    except Exception as e:
+        print(f"⚠️  Mobile export encountered an issue: {str(e)}")
+        print("   Skipping mobile optimization")
+        mobile_metrics = None
 
     # 3. Benchmark performance
     print("\n3️⃣ Performance Benchmarking")
 
-    # Benchmark ONNX
-    onnx_perf = pipeline.benchmark_edge_inference(
-        "models/onnx/model.onnx", num_samples=50
-    )
+    onnx_perf = None
+    mobile_perf = None
+    
+    # Benchmark ONNX if it was exported
+    if onnx_metrics and os.path.exists("models/onnx/model.onnx"):
+        try:
+            onnx_perf = pipeline.benchmark_edge_inference(
+                "models/onnx/model.onnx", num_samples=50
+            )
+        except Exception as e:
+            print(f"⚠️  Could not benchmark ONNX model: {str(e)}")
 
-    # Benchmark mobile model
-    mobile_perf = pipeline.benchmark_edge_inference(
-        "models/mobile/mobile_model.pt", num_samples=50
-    )
+    # Benchmark mobile model if it was exported
+    if mobile_metrics and os.path.exists("models/mobile/mobile_model.pt"):
+        try:
+            mobile_perf = pipeline.benchmark_edge_inference(
+                "models/mobile/mobile_model.pt", num_samples=50
+            )
+        except Exception as e:
+            print(f"⚠️  Could not benchmark mobile model: {str(e)}")
 
     print("\n" + "=" * 80)
     print("📈 DEPLOYMENT SUMMARY")
     print("=" * 80)
-    print("\nONNX Model:")
-    print(
-        f"  Size: {onnx_metrics['onnx_size']} ({onnx_metrics['size_reduction']} smaller)"
-    )
-    print(f"  Latency: {onnx_perf['avg_latency']}")
-    print(f"  Throughput: {onnx_perf['throughput']}")
+    
+    if onnx_metrics and onnx_perf:
+        print("\nONNX Model:")
+        print(
+            f"  Size: {onnx_metrics['onnx_size']} ({onnx_metrics['size_reduction']} smaller)"
+        )
+        print(f"  Latency: {onnx_perf['avg_latency']}")
+        print(f"  Throughput: {onnx_perf['throughput']}")
+    else:
+        print("\nONNX Model: Not available")
 
-    print("\nMobile Model:")
-    print(
-        f"  Size: {mobile_metrics['mobile_size']} ({mobile_metrics['size_reduction']} smaller)"
-    )
-    print(f"  Latency: {mobile_perf['avg_latency']}")
-    print(f"  Throughput: {mobile_perf['throughput']}")
+    if mobile_metrics and mobile_perf:
+        print("\nMobile Model:")
+        print(
+            f"  Size: {mobile_metrics['mobile_size']} ({mobile_metrics['size_reduction']} smaller)"
+        )
+        print(f"  Latency: {mobile_perf['avg_latency']}")
+        print(f"  Throughput: {mobile_perf['throughput']}")
+    else:
+        print("\nMobile Model: Not available")
 
 
 if __name__ == "__main__":

@@ -104,6 +104,7 @@ def demonstrate_data_workflows():
         split="train",
         streaming=True,
         cache_dir=CACHE_DIR,
+        trust_remote_code=True,
     )
 
     # Process first 100 examples

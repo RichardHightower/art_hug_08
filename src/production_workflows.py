@@ -6,7 +6,7 @@ from pathlib import Path
 
 from transformers import pipeline
 
-from src.config import BATCH_SIZE, DEVICE
+from src.config import BATCH_SIZE, DEVICE, get_pipeline_device
 
 
 class RetailReviewWorkflow:
@@ -17,13 +17,13 @@ class RetailReviewWorkflow:
         self.sentiment_pipeline = pipeline(
             "sentiment-analysis",
             model="distilbert-base-uncased-finetuned-sst-2-english",
-            device=0 if DEVICE == "cuda" else -1,
+            device=get_pipeline_device(),
         )
 
         self.classification_pipeline = pipeline(
             "zero-shot-classification",
             model="facebook/bart-large-mnli",
-            device=0 if DEVICE == "cuda" else -1,
+            device=get_pipeline_device(),
         )
 
         self.categories = [
