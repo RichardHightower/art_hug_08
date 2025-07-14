@@ -13,7 +13,7 @@
       0.9816725254058838
     ],
     "priority": "normal",
-    "timestamp": 1752462858.046637
+    "timestamp": 1752464068.739531
   },
   {
     "original_text": "Terrible experience. The item arrived broken and customer service was unhelpful.",
@@ -29,7 +29,7 @@
       0.8997030854225159
     ],
     "priority": "urgent",
-    "timestamp": 1752462858.0466409
+    "timestamp": 1752464068.739535
   },
   {
     "original_text": "Good value for money, but packaging could be better.",
@@ -45,7 +45,7 @@
       0.9001574516296387
     ],
     "priority": "normal",
-    "timestamp": 1752462858.046654
+    "timestamp": 1752464068.739538
   },
   {
     "original_text": "URGENT: Received wrong item. Need immediate refund!",
@@ -61,7 +61,7 @@
       0.8178257942199707
     ],
     "priority": "urgent",
-    "timestamp": 1752462858.046656
+    "timestamp": 1752464068.7395399
   },
   {
     "original_text": "The product works as described. Delivery was on time.",
@@ -77,7 +77,7 @@
       0.901248037815094
     ],
     "priority": "normal",
-    "timestamp": 1752462858.046659
+    "timestamp": 1752464068.7395442
   },
   {
     "original_text": "Worst purchase ever! Complete waste of money. Want my refund NOW!",
@@ -93,7 +93,7 @@
       0.6236186623573303
     ],
     "priority": "high",
-    "timestamp": 1752462858.0466619
+    "timestamp": 1752464068.739546
   },
   {
     "original_text": "Nice product but a bit overpriced compared to competitors.",
@@ -109,7 +109,7 @@
       0.9365023970603943
     ],
     "priority": "normal",
-    "timestamp": 1752462858.046665
+    "timestamp": 1752464068.7395499
   },
   {
     "original_text": "Package was damaged during shipping but product was fine.",
@@ -125,7 +125,7 @@
       0.9724493026733398
     ],
     "priority": "urgent",
-    "timestamp": 1752462858.046666
+    "timestamp": 1752464068.739551
   },
   {
     "original_text": "Excellent customer service! They resolved my issue quickly.",
@@ -141,7 +141,7 @@
       0.44298839569091797
     ],
     "priority": "medium",
-    "timestamp": 1752462858.0466702
+    "timestamp": 1752464068.7395542
   },
   {
     "original_text": "Product quality is okay but not worth the premium price.",
@@ -157,7 +157,7 @@
       0.8812543153762817
     ],
     "priority": "normal",
-    "timestamp": 1752462858.0466728
+    "timestamp": 1752464068.739558
   },
   {
     "original_text": "Love it! Exceeded my expectations in every way.",
@@ -173,7 +173,7 @@
       0.7991129159927368
     ],
     "priority": "normal",
-    "timestamp": 1752462858.046675
+    "timestamp": 1752464068.73956
   },
   {
     "original_text": "Shipping took forever and no tracking updates provided.",
@@ -189,6 +189,6 @@
       0.6320828795433044
     ],
     "priority": "normal",
-    "timestamp": 1752462858.046678
+    "timestamp": 1752464068.739564
   }
 ]
