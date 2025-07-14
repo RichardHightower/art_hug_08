@@ -232,7 +232,7 @@ class FlashAttentionDemo:
         return results
 
     def demonstrate_memory_efficient_attention(
-        self, model_name: str = "gpt2-medium", max_length: int = 1024
+        self, model_name: str = "microsoft/phi-2", max_length: int = 1024
     ) -> dict[str, Any]:
         """
         Demonstrate memory-efficient attention for long sequences.
@@ -330,7 +330,7 @@ class FlashAttentionDemo:
 
     def benchmark_batch_processing(
         self,
-        model_name: str = "distilbert-base-uncased",
+        model_name: str = "cardiffnlp/twitter-roberta-base-sentiment-latest",
         batch_sizes: list[int] = [1, 4, 8, 16, 32],
     ) -> dict[str, Any]:
         """
@@ -420,16 +420,22 @@ def demonstrate_flash_attention():
     # 1. Compare attention methods
     print("\n1️⃣ Attention Method Comparison")
     attention_results = demo.compare_attention_methods(
-        sequence_length=512, batch_size=4
+        model_name="microsoft/phi-2",  # Use modern model
+        sequence_length=512, 
+        batch_size=4
     )
 
     # 2. Memory-efficient attention
     print("\n2️⃣ Memory-Efficient Attention")
-    memory_results = demo.demonstrate_memory_efficient_attention()
+    memory_results = demo.demonstrate_memory_efficient_attention(
+        model_name="microsoft/phi-2"  # Use modern model
+    )
 
     # 3. Batch processing benchmark
     print("\n3️⃣ Batch Processing Performance")
-    batch_results = demo.benchmark_batch_processing()
+    batch_results = demo.benchmark_batch_processing(
+        model_name="cardiffnlp/twitter-roberta-base-sentiment-latest"  # Use modern sentiment model
+    )
 
     print("\n" + "=" * 80)
     print("📊 ATTENTION OPTIMIZATION SUMMARY")

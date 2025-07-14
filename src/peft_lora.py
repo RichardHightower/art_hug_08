@@ -21,6 +21,7 @@ from peft import (
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
+    BitsAndBytesConfig,
     DataCollatorForLanguageModeling,
     Trainer,
     TrainingArguments,
@@ -35,7 +36,7 @@ class PEFTTrainer:
 
     def __init__(
         self,
-        model_name: str = "gpt2",  # Start with smaller model for demo
+        model_name: str = "microsoft/phi-2",  # Use modern model
         task_type: TaskType = TaskType.CAUSAL_LM,
     ):
         """Initialize PEFT trainer with model and task type."""
@@ -49,6 +50,7 @@ class PEFTTrainer:
         lora_alpha: int = 32,
         lora_dropout: float = 0.1,
         target_modules: list[str] = None,
+        use_qlora: bool = False,
     ) -> tuple:
         """
         Setup model with LoRA configuration.
@@ -58,18 +60,36 @@ class PEFTTrainer:
             lora_alpha: LoRA scaling parameter
             lora_dropout: Dropout for LoRA layers
             target_modules: Modules to apply LoRA to
+            use_qlora: Use QLoRA (INT4 quantization) for memory efficiency
 
         Returns:
             Tuple of (peft_model, tokenizer)
         """
-        print(f"\n🔧 Setting up LoRA for {self.model_name}...")
+        print(f"\n🔧 Setting up {'QLoRA' if use_qlora else 'LoRA'} for {self.model_name}...")
 
-        # Load base model and tokenizer
-        model = AutoModelForCausalLM.from_pretrained(
-            self.model_name,
-            device_map="auto",
-            torch_dtype=torch.float16 if self.device.type == "cuda" else torch.float32,
-        )
+        # Configure quantization for QLoRA
+        if use_qlora:
+            print("⚙️  Configuring INT4 quantization for QLoRA...")
+            bnb_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_compute_dtype=torch.float16 if self.device.type == "cuda" else torch.float32,
+                bnb_4bit_use_double_quant=True,
+            )
+            
+            # Load quantized model
+            model = AutoModelForCausalLM.from_pretrained(
+                self.model_name,
+                quantization_config=bnb_config,
+                device_map="auto",
+            )
+        else:
+            # Load base model without quantization
+            model = AutoModelForCausalLM.from_pretrained(
+                self.model_name,
+                device_map="auto",
+                torch_dtype=torch.float16 if self.device.type == "cuda" else torch.float32,
+            )
 
         tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         tokenizer.pad_token = tokenizer.eos_token
@@ -85,6 +105,8 @@ class PEFTTrainer:
                 target_modules = ["c_attn", "c_proj"]
             elif "llama" in self.model_name.lower():
                 target_modules = ["q_proj", "v_proj", "k_proj", "o_proj"]
+            elif "phi" in self.model_name.lower():
+                target_modules = ["Wqkv", "out_proj", "fc1", "fc2"]
             else:
                 target_modules = ["query", "value"]
 

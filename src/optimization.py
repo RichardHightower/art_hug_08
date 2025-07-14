@@ -171,12 +171,12 @@ def demonstrate_optimization():
     print("-" * 40)
 
     # Simulate pruning by using a smaller model
-    small_model_name = "distilbert-base-uncased"
+    small_model_name = "distilbert-base-uncased-finetuned-sst-2-english"
     print(f"Loading smaller model: {small_model_name}")
 
     small_tokenizer = AutoTokenizer.from_pretrained(small_model_name)
     small_model = AutoModelForSequenceClassification.from_pretrained(
-        small_model_name, num_labels=2
+        small_model_name
     )
 
     if DEVICE == "cuda":
