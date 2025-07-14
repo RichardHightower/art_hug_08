@@ -16,8 +16,8 @@ from transformers import (
     BitsAndBytesConfig,
 )
 
-from config import Config
-from utils import format_size, timer_decorator
+from src.config import Config
+from src.utils import format_size, timer_decorator
 
 
 class AdvancedQuantization:

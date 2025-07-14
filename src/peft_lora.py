@@ -26,8 +26,8 @@ from transformers import (
     TrainingArguments,
 )
 
-from config import Config
-from utils import format_size, timer_decorator
+from src.config import Config
+from src.utils import format_size, timer_decorator
 
 
 class PEFTTrainer:
@@ -187,10 +187,7 @@ class PEFTTrainer:
                 p.numel() for p in peft_model.parameters() if p.requires_grad
             ),
             "total_params": sum(p.numel() for p in peft_model.parameters()),
-            "efficiency": (
-                f"{(sum(p.numel() for p in peft_model.parameters() if p.requires_grad) / "
-                f"sum(p.numel() for p in peft_model.parameters()) * 100):.2f}%"
-            ),
+            "efficiency": f"{(sum(p.numel() for p in peft_model.parameters() if p.requires_grad) / sum(p.numel() for p in peft_model.parameters()) * 100):.2f}%",
         }
 
         print("\n✅ LoRA Training Complete:")

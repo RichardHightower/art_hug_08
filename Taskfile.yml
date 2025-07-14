@@ -1,5 +1,8 @@
 version: '3'
 
+vars:
+  PYTHON_VERSION: 3.12.10
+
 tasks:
   default:
     desc: "Show available tasks"
@@ -7,11 +10,26 @@ tasks:
       - task --list
 
   setup:
-    desc: "Set up the development environment"
+    desc: "Set up the Python environment and install dependencies"
     cmds:
+      - pyenv install -s {{.PYTHON_VERSION}}
+      - pyenv local {{.PYTHON_VERSION}}
+      - poetry config virtualenvs.in-project true
       - poetry install
+      - poetry run pip install sentencepiece  # Handle macOS build issue
+      - mkdir -p data/images data/audio output synthetic cache
       - cp .env.example .env || true
-      - echo "Environment setup complete!"
+      - 'echo "Setup complete! Run tests with: task test-env"'
+
+  test-env:
+    desc: "Test that the environment is set up correctly"
+    cmds:
+      - poetry run python test_environment.py
+
+  quick-start:
+    desc: "Run a quick demo to verify everything works"
+    cmds:
+      - poetry run python test_demo.py
 
   run:
     desc: "Run the main workflow demonstration"
@@ -117,3 +135,13 @@ tasks:
     cmds:
       - poetry run mprof run python -m src.data_workflows
       - poetry run mprof plot
+  
+  qlora:
+    desc: "Run QLoRA demonstration"
+    cmds:
+      - poetry run python -m src.peft_lora --qlora
+  
+  bias-check:
+    desc: "Run bias validation on synthetic data"
+    cmds:
+      - poetry run python -m src.synthetic_data --validate-bias

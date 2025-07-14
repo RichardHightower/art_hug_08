@@ -8,35 +8,57 @@ from transformers import (
     Pipeline,
     pipeline,
 )
-from transformers.pipelines import register_pipeline
+
+# Note: register_pipeline API has changed in newer versions
+# For demo purposes, we'll show the concept without actual registration
 
 from src.config import BATCH_SIZE, DEFAULT_NER_MODEL, DEFAULT_SENTIMENT_MODEL, DEVICE
 
 
 class CustomSentimentPipeline(Pipeline):
     """Custom sentiment pipeline with preprocessing and business logic."""
+    
+    def _sanitize_parameters(self, **kwargs):
+        """Separate preprocessing, forward, and postprocessing parameters."""
+        preprocess_kwargs = {}
+        postprocess_kwargs = {}
+        
+        # Extract custom parameters
+        if "normalize_text" in kwargs:
+            preprocess_kwargs["normalize_text"] = kwargs.pop("normalize_text")
+        if "confidence_threshold" in kwargs:
+            postprocess_kwargs["confidence_threshold"] = kwargs.pop("confidence_threshold")
+            
+        return preprocess_kwargs, {}, postprocess_kwargs
 
-    def preprocess(self, inputs):
+    def preprocess(self, inputs, normalize_text=True):
         """Clean and normalize text before processing."""
-
+        # Handle both single string and list inputs
         if isinstance(inputs, str):
             inputs = [inputs]
+        elif isinstance(inputs, dict):
+            # Handle dict input from pipeline
+            inputs = inputs.get("text", inputs.get("inputs", []))
+            if isinstance(inputs, str):
+                inputs = [inputs]
 
         cleaned = []
         for text in inputs:
-            # Remove HTML tags
-            import re
+            if normalize_text:
+                # Remove HTML tags
+                import re
 
-            text = re.sub(r"<.*?>", "", text)
+                text = re.sub(r"<.*?>", "", text)
 
-            # Normalize
-            text = text.lower().strip()
+                # Normalize
+                text = text.lower().strip()
 
-            # Remove excessive punctuation
-            text = re.sub(r"[!?]{2,}", "!", text)
+                # Remove excessive punctuation
+                text = re.sub(r"[!?]{2,}", "!", text)
 
             cleaned.append(text)
 
+        # Return in format expected by parent class
         return super().preprocess(cleaned)
 
     def postprocess(self, outputs):
@@ -119,12 +141,20 @@ def demonstrate_custom_pipelines():
     print("1. Standard Pipeline Baseline")
     print("-" * 40)
 
-    # Standard pipeline
-    standard_pipe = pipeline(
-        "sentiment-analysis",
-        model=DEFAULT_SENTIMENT_MODEL,
-        device=0 if DEVICE == "cuda" else -1,
-    )
+    try:
+        # Standard pipeline
+        standard_pipe = pipeline(
+            "sentiment-analysis",
+            model=DEFAULT_SENTIMENT_MODEL,
+            device=0 if DEVICE == "cuda" else -1,
+        )
+    except Exception as e:
+        print(f"Error loading model {DEFAULT_SENTIMENT_MODEL}: {e}")
+        print("Falling back to default model...")
+        standard_pipe = pipeline(
+            "sentiment-analysis",
+            device=0 if DEVICE == "cuda" else -1,
+        )
 
     test_texts = [
         "This product is absolutely amazing! Best purchase ever!!!",
@@ -165,10 +195,11 @@ def demonstrate_custom_pipelines():
     print("\n3. Composite Pipeline (Sentiment + NER)")
     print("-" * 40)
 
-    # Register composite pipeline
-    register_pipeline(
-        task="sentiment-ner", pipeline_class=SentimentNERPipeline, pt_model=True
-    )
+    # Note: In newer versions of transformers, the registration API has changed
+    # For demonstration, we'll create the pipeline directly
+    # register_pipeline(
+    #     task="sentiment-ner", pipeline_class=SentimentNERPipeline, pt_model=True
+    # )
 
     # Create component pipelines
     sentiment_pipe = pipeline(

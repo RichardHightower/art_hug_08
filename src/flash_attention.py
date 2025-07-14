@@ -15,8 +15,8 @@ from transformers import (
     AutoTokenizer,
 )
 
-from config import Config
-from utils import format_size, timer_decorator
+from src.config import Config
+from src.utils import format_size, timer_decorator
 
 
 class FlashAttentionDemo:
@@ -56,7 +56,7 @@ class FlashAttentionDemo:
 
     @timer_decorator
     def compare_attention_methods(
-        self, model_name: str = "gpt2", sequence_length: int = 512, batch_size: int = 8
+        self, model_name: str = "microsoft/phi-2", sequence_length: int = 512, batch_size: int = 8
     ) -> dict[str, Any]:
         """
         Compare different attention implementations.
