@@ -26,11 +26,33 @@ DEVICE = os.getenv("DEFAULT_DEVICE", get_device())
 BATCH_SIZE = int(os.getenv("BATCH_SIZE", "32"))
 MAX_LENGTH = int(os.getenv("MAX_LENGTH", "512"))
 
+# Helper function for pipeline device configuration
+def get_pipeline_device():
+    """Get device ID for HuggingFace pipelines."""
+    if DEVICE == "cuda":
+        return 0  # GPU 0
+    elif DEVICE == "mps":
+        return 0  # MPS device 0
+    else:
+        return -1  # CPU
+
 # Model settings
-DEFAULT_SENTIMENT_MODEL = "distilbert-base-uncased-finetuned-sst-2-english"
-DEFAULT_NER_MODEL = "dbmdz/bert-large-cased-finetuned-conll03-english"
-DEFAULT_CLASSIFICATION_MODEL = "facebook/bart-large-mnli"
-DEFAULT_GENERATION_MODEL = "mistralai/Mistral-7B-Instruct-v0.2"
+DEFAULT_SENTIMENT_MODEL = os.getenv(
+    "SENTIMENT_MODEL",
+    "cardiffnlp/twitter-roberta-base-sentiment-latest"
+)
+DEFAULT_NER_MODEL = os.getenv(
+    "NER_MODEL",
+    "dbmdz/bert-large-cased-finetuned-conll03-english"
+)
+DEFAULT_CLASSIFICATION_MODEL = os.getenv(
+    "CLASSIFICATION_MODEL",
+    "facebook/bart-large-mnli"
+)
+DEFAULT_GENERATION_MODEL = os.getenv(
+    "GENERATION_MODEL",
+    "mistralai/Mistral-7B-Instruct-v0.3"
+)
 
 # Data settings
 DATA_PATH = Path(os.getenv("DATA_PATH", "./data"))
@@ -55,3 +77,32 @@ SYNTHETIC_DATA_PATH.mkdir(exist_ok=True)
 HF_TOKEN = os.getenv("HUGGINGFACE_TOKEN")
 if HF_TOKEN:
     os.environ["HF_TOKEN"] = HF_TOKEN
+
+
+class Config:
+    """Centralized configuration class for easy access."""
+
+    # Device configuration
+    DEVICE = torch.device(DEVICE)
+
+    # Batch and model settings
+    BATCH_SIZE = BATCH_SIZE
+    MAX_LENGTH = MAX_LENGTH
+
+    # Model names
+    DEFAULT_SENTIMENT_MODEL = DEFAULT_SENTIMENT_MODEL
+    DEFAULT_NER_MODEL = DEFAULT_NER_MODEL
+    DEFAULT_CLASSIFICATION_MODEL = DEFAULT_CLASSIFICATION_MODEL
+    DEFAULT_GENERATION_MODEL = DEFAULT_GENERATION_MODEL
+
+    # Paths
+    DATA_PATH = DATA_PATH
+    CACHE_DIR = CACHE_DIR
+    SYNTHETIC_DATA_PATH = SYNTHETIC_DATA_PATH
+
+    # Other settings
+    NUM_WORKERS = NUM_WORKERS
+    ENABLE_QUANTIZATION = ENABLE_QUANTIZATION
+    QUANTIZATION_BITS = QUANTIZATION_BITS
+    ENABLE_FLASH_ATTENTION = ENABLE_FLASH_ATTENTION
+    VALIDATION_THRESHOLD = VALIDATION_THRESHOLD

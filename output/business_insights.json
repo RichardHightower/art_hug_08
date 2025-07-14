@@ -1,0 +1,107 @@
+{
+  "total_reviews": 12,
+  "sentiment_distribution": {
+    "POSITIVE": {
+      "count": 5,
+      "percentage": 41.66666666666667
+    },
+    "NEGATIVE": {
+      "count": 7,
+      "percentage": 58.333333333333336
+    }
+  },
+  "top_categories": [
+    [
+      "shipping",
+      8
+    ],
+    [
+      "product quality",
+      5
+    ],
+    [
+      "customer service",
+      5
+    ],
+    [
+      "pricing",
+      4
+    ],
+    [
+      "packaging",
+      2
+    ]
+  ],
+  "priority_distribution": {
+    "normal": 7,
+    "urgent": 3,
+    "high": 1,
+    "medium": 1
+  },
+  "urgent_reviews": [
+    {
+      "original_text": "Terrible experience. The item arrived broken and customer service was unhelpful.",
+      "cleaned_text": "Terrible experience. The item arrived broken and customer service was unhelpful.",
+      "sentiment": "NEGATIVE",
+      "sentiment_score": 0.9996428489685059,
+      "categories": [
+        "customer service",
+        "shipping"
+      ],
+      "category_scores": [
+        0.9837790131568909,
+        0.8997030854225159
+      ],
+      "priority": "urgent",
+      "timestamp": 1752464068.739535
+    },
+    {
+      "original_text": "URGENT: Received wrong item. Need immediate refund!",
+      "cleaned_text": "URGENT: Received wrong item. Need immediate refund!",
+      "sentiment": "NEGATIVE",
+      "sentiment_score": 0.9994229078292847,
+      "categories": [
+        "customer service",
+        "shipping"
+      ],
+      "category_scores": [
+        0.9899827837944031,
+        0.8178257942199707
+      ],
+      "priority": "urgent",
+      "timestamp": 1752464068.7395399
+    },
+    {
+      "original_text": "Worst purchase ever! Complete waste of money. Want my refund NOW!",
+      "cleaned_text": "Worst purchase ever! Complete waste of money. Want my refund NOW!",
+      "sentiment": "NEGATIVE",
+      "sentiment_score": 0.9998012185096741,
+      "categories": [
+        "pricing",
+        "shipping"
+      ],
+      "category_scores": [
+        0.6930479407310486,
+        0.6236186623573303
+      ],
+      "priority": "high",
+      "timestamp": 1752464068.739546
+    },
+    {
+      "original_text": "Package was damaged during shipping but product was fine.",
+      "cleaned_text": "Package was damaged during shipping but product was fine.",
+      "sentiment": "POSITIVE",
+      "sentiment_score": 0.9956854581832886,
+      "categories": [
+        "shipping",
+        "packaging"
+      ],
+      "category_scores": [
+        0.9859023094177246,
+        0.9724493026733398
+      ],
+      "priority": "urgent",
+      "timestamp": 1752464068.739551
+    }
+  ]
+}

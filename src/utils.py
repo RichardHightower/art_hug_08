@@ -22,6 +22,19 @@ def timer(func):
     return wrapper
 
 
+# Alias for compatibility
+timer_decorator = timer
+
+
+def format_size(size_bytes):
+    """Format byte size into human readable string."""
+    for unit in ["B", "KB", "MB", "GB", "TB"]:
+        if size_bytes < 1024.0:
+            return f"{size_bytes:.2f} {unit}"
+        size_bytes /= 1024.0
+    return f"{size_bytes:.2f} PB"
+
+
 def get_system_info():
     """Get current system resource usage."""
     info = {
@@ -154,6 +167,51 @@ result = pipe("Your text here")
     return card.strip()
 
 
+def check_toxicity(texts):
+    """
+    Check toxicity of texts using evaluate library.
+    
+    Args:
+        texts: List of texts to check
+        
+    Returns:
+        List of toxicity scores (0-1, higher is more toxic)
+    """
+    try:
+        from evaluate import load
+        
+        toxicity = load("toxicity")
+        results = toxicity.compute(predictions=texts)
+        return results["toxicity"]
+    except Exception as e:
+        print(f"Warning: Could not run toxicity check: {e}")
+        # Return low toxicity scores as fallback
+        return [0.0] * len(texts)
+
+
+def filter_toxic_content(texts, threshold=0.5):
+    """
+    Filter out toxic content from a list of texts.
+    
+    Args:
+        texts: List of texts to filter
+        threshold: Toxicity threshold (0-1)
+        
+    Returns:
+        List of non-toxic texts
+    """
+    toxicity_scores = check_toxicity(texts)
+    filtered = []
+    
+    for text, score in zip(texts, toxicity_scores):
+        if score < threshold:
+            filtered.append(text)
+        else:
+            print(f"Filtered toxic content (score={score:.3f}): {text[:50]}...")
+            
+    return filtered
+
+
 if __name__ == "__main__":
     # Test utilities
     print("System Info:")
@@ -168,3 +226,20 @@ if __name__ == "__main__":
             z = torch.matmul(x, y)
 
     print(f"Memory used: {tracker.get_memory_used():.2f}MB")
+    
+    # Test toxicity check
+    print("\nToxicity Check Test:")
+    test_texts = [
+        "This is a nice product",
+        "I hate this terrible thing",
+        "The weather is beautiful today"
+    ]
+    
+    toxicity_scores = check_toxicity(test_texts)
+    for text, score in zip(test_texts, toxicity_scores):
+        print(f"  '{text}' -> toxicity: {score:.3f}")
+    
+    # Test filtering
+    print("\nFiltering Test:")
+    filtered = filter_toxic_content(test_texts, threshold=0.7)
+    print(f"Kept {len(filtered)}/{len(test_texts)} texts")

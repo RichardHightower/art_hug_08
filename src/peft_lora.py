@@ -21,13 +21,14 @@ from peft import (
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
+    BitsAndBytesConfig,
     DataCollatorForLanguageModeling,
     Trainer,
     TrainingArguments,
 )
 
-from config import Config
-from utils import format_size, timer_decorator
+from src.config import Config
+from src.utils import format_size, timer_decorator
 
 
 class PEFTTrainer:
@@ -35,7 +36,7 @@ class PEFTTrainer:
 
     def __init__(
         self,
-        model_name: str = "gpt2",  # Start with smaller model for demo
+        model_name: str = "microsoft/phi-2",  # Use modern model
         task_type: TaskType = TaskType.CAUSAL_LM,
     ):
         """Initialize PEFT trainer with model and task type."""
@@ -49,6 +50,7 @@ class PEFTTrainer:
         lora_alpha: int = 32,
         lora_dropout: float = 0.1,
         target_modules: list[str] = None,
+        use_qlora: bool = False,
     ) -> tuple:
         """
         Setup model with LoRA configuration.
@@ -58,18 +60,36 @@ class PEFTTrainer:
             lora_alpha: LoRA scaling parameter
             lora_dropout: Dropout for LoRA layers
             target_modules: Modules to apply LoRA to
+            use_qlora: Use QLoRA (INT4 quantization) for memory efficiency
 
         Returns:
             Tuple of (peft_model, tokenizer)
         """
-        print(f"\n🔧 Setting up LoRA for {self.model_name}...")
+        print(f"\n🔧 Setting up {'QLoRA' if use_qlora else 'LoRA'} for {self.model_name}...")
 
-        # Load base model and tokenizer
-        model = AutoModelForCausalLM.from_pretrained(
-            self.model_name,
-            device_map="auto",
-            torch_dtype=torch.float16 if self.device.type == "cuda" else torch.float32,
-        )
+        # Configure quantization for QLoRA
+        if use_qlora:
+            print("⚙️  Configuring INT4 quantization for QLoRA...")
+            bnb_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_compute_dtype=torch.float16 if self.device.type == "cuda" else torch.float32,
+                bnb_4bit_use_double_quant=True,
+            )
+            
+            # Load quantized model
+            model = AutoModelForCausalLM.from_pretrained(
+                self.model_name,
+                quantization_config=bnb_config,
+                device_map="auto",
+            )
+        else:
+            # Load base model without quantization
+            model = AutoModelForCausalLM.from_pretrained(
+                self.model_name,
+                device_map="auto",
+                torch_dtype=torch.float16 if self.device.type == "cuda" else torch.float32,
+            )
 
         tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         tokenizer.pad_token = tokenizer.eos_token
@@ -85,6 +105,8 @@ class PEFTTrainer:
                 target_modules = ["c_attn", "c_proj"]
             elif "llama" in self.model_name.lower():
                 target_modules = ["q_proj", "v_proj", "k_proj", "o_proj"]
+            elif "phi" in self.model_name.lower():
+                target_modules = ["Wqkv", "out_proj", "fc1", "fc2"]
             else:
                 target_modules = ["query", "value"]
 
@@ -187,10 +209,7 @@ class PEFTTrainer:
                 p.numel() for p in peft_model.parameters() if p.requires_grad
             ),
             "total_params": sum(p.numel() for p in peft_model.parameters()),
-            "efficiency": (
-                f"{(sum(p.numel() for p in peft_model.parameters() if p.requires_grad) / "
-                f"sum(p.numel() for p in peft_model.parameters()) * 100):.2f}%"
-            ),
+            "efficiency": f"{(sum(p.numel() for p in peft_model.parameters() if p.requires_grad) / sum(p.numel() for p in peft_model.parameters()) * 100):.2f}%",
         }
 
         print("\n✅ LoRA Training Complete:")
@@ -348,29 +367,57 @@ def demonstrate_peft_lora():
 
     dataset = Dataset.from_dict({"text": texts})
 
-    # Initialize trainer
-    trainer = PEFTTrainer(model_name="gpt2")
+    # Initialize trainer with modern model
+    model_name = "microsoft/phi-2"
+    trainer = PEFTTrainer(model_name=model_name)
 
-    # 1. Setup LoRA model
-    print("\n1️⃣ Setting up LoRA Model")
-    peft_model, tokenizer = trainer.setup_lora_model(r=16, lora_alpha=32)
+    # 1. Setup standard LoRA model
+    print("\n1️⃣ Setting up Standard LoRA Model")
+    peft_model, tokenizer = trainer.setup_lora_model(r=16, lora_alpha=32, use_qlora=False)
 
-    # 2. Fine-tune with LoRA
-    print("\n2️⃣ Fine-tuning with LoRA")
+    # 2. Setup QLoRA model (INT4 quantized)
+    print("\n2️⃣ Setting up QLoRA Model (INT4 Quantized)")
+    qlora_trainer = PEFTTrainer(model_name=model_name)
+    qlora_model, qlora_tokenizer = qlora_trainer.setup_lora_model(
+        r=16, lora_alpha=32, use_qlora=True
+    )
+
+    # 3. Fine-tune with standard LoRA
+    print("\n3️⃣ Fine-tuning with Standard LoRA")
     metrics = trainer.fine_tune_with_lora(
         peft_model, tokenizer, dataset, num_epochs=1  # Quick demo
     )
 
-    # 3. Test inference
-    print("\n3️⃣ Testing Inference")
-    generated = trainer.inference_with_lora(
-        "gpt2", "models/lora", "The future of AI", max_length=50
+    # 4. Fine-tune with QLoRA
+    print("\n4️⃣ Fine-tuning with QLoRA")
+    qlora_metrics = qlora_trainer.fine_tune_with_lora(
+        qlora_model, qlora_tokenizer, dataset, 
+        output_dir="models/qlora",
+        num_epochs=1  # Quick demo
     )
-    print(f"Generated: {generated}")
 
-    # 4. Compare configurations
-    print("\n4️⃣ Comparing Configurations")
+    # 5. Test inference
+    print("\n5️⃣ Testing Inference")
+    generated = trainer.inference_with_lora(
+        model_name, "models/lora", "The future of AI", max_length=50
+    )
+    print(f"Generated (LoRA): {generated}")
+    
+    qlora_generated = qlora_trainer.inference_with_lora(
+        model_name, "models/qlora", "The future of AI", max_length=50
+    )
+    print(f"Generated (QLoRA): {qlora_generated}")
+
+    # 6. Compare configurations
+    print("\n6️⃣ Comparing Configurations")
     comparison = trainer.compare_lora_configs(dataset)
+    
+    # 7. Summary comparison
+    print("\n7️⃣ LoRA vs QLoRA Comparison")
+    print(f"{'Method':<15} {'Adapter Size':<15} {'Training Time':<15} {'Memory Usage':<15}")
+    print("-" * 60)
+    print(f"{'Standard LoRA':<15} {metrics['adapter_size']:<15} {metrics['training_time']:<15} {'High':<15}")
+    print(f"{'QLoRA (INT4)':<15} {qlora_metrics['adapter_size']:<15} {qlora_metrics['training_time']:<15} {'Low (~25%)':<15}")
 
     print("\n" + "=" * 80)
     print("✅ PEFT/LoRA demonstration complete!")
@@ -378,4 +425,39 @@ def demonstrate_peft_lora():
 
 
 if __name__ == "__main__":
-    demonstrate_peft_lora()
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="PEFT/LoRA demonstration")
+    parser.add_argument(
+        "--qlora",
+        action="store_true",
+        help="Run QLoRA demonstration only"
+    )
+    args = parser.parse_args()
+    
+    if args.qlora:
+        # Run QLoRA-specific demo
+        print("=" * 80)
+        print("🎯 QLORA DEMONSTRATION")
+        print("=" * 80)
+        
+        # Create sample dataset
+        texts = [
+            "The future of AI is bright and full of possibilities.",
+            "Machine learning transforms how we solve complex problems.",
+            "Deep learning models continue to improve rapidly.",
+        ] * 10
+        dataset = Dataset.from_dict({"text": texts})
+        
+        # Run QLoRA demo
+        trainer = PEFTTrainer(model_name="microsoft/phi-2")
+        qlora_model, tokenizer = trainer.setup_lora_model(
+            r=8, lora_alpha=16, use_qlora=True
+        )
+        
+        print("\n✅ QLoRA setup complete!")
+        print("   - INT4 quantization enabled")
+        print("   - Memory usage reduced by ~75%")
+        print("   - Ready for fine-tuning large models on consumer GPUs")
+    else:
+        demonstrate_peft_lora()

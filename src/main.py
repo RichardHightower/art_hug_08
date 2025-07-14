@@ -65,17 +65,24 @@ def main():
         print("\n--- Edge Deployment Demonstration ---")
         demonstrate_edge_deployment()
 
-    if args.demo in ["all", "peft"]:
-        print("\n--- PEFT/LoRA Demonstration ---")
-        demonstrate_peft_lora()
+    try:
+        if args.demo in ["all", "peft"]:
+            print("\n--- PEFT/LoRA Demonstration ---")
+            demonstrate_peft_lora()
+    except Exception as e:
+        print(f"Error running PEFT/LoRA demonstration: {e} You need CUDA")
 
     if args.demo in ["all", "flash"]:
         print("\n--- Flash Attention Demonstration ---")
         demonstrate_flash_attention()
 
-    if args.demo in ["all", "quantization"]:
-        print("\n--- Advanced Quantization Demonstration ---")
-        demonstrate_advanced_quantization()
+
+    try:
+        if args.demo in ["all", "quantization"]:
+            print("\n--- Advanced Quantization Demonstration ---")
+            demonstrate_advanced_quantization()
+    except Exception as e:
+        print(f"Error running Advanced Quantization Demonstration: {e} \nYou need CUDA")
 
     if args.demo in ["all", "diffusion"]:
         print("\n--- Diffusion Generation Demonstration ---")

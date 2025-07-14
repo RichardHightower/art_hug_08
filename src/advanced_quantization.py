@@ -16,8 +16,8 @@ from transformers import (
     BitsAndBytesConfig,
 )
 
-from config import Config
-from utils import format_size, timer_decorator
+from src.config import Config
+from src.utils import format_size, timer_decorator
 
 
 class AdvancedQuantization:
@@ -42,7 +42,7 @@ class AdvancedQuantization:
     @timer_decorator
     def quantize_model_int4(
         self,
-        model_name: str = "gpt2",
+        model_name: str = "microsoft/phi-2",
         compute_dtype: torch.dtype = torch.float16,
         quant_type: str = "nf4",
     ) -> dict[str, Any]:
@@ -129,7 +129,7 @@ class AdvancedQuantization:
         return metrics, model_int4
 
     def compare_quantization_methods(
-        self, model_name: str = "gpt2", test_sequences: int = 10
+        self, model_name: str = "microsoft/phi-2", test_sequences: int = 10
     ) -> dict[str, Any]:
         """
         Compare different quantization methods.
@@ -282,7 +282,7 @@ class AdvancedQuantization:
         }
 
     def demonstrate_qlora_optimization(
-        self, model_name: str = "gpt2"
+        self, model_name: str = "microsoft/phi-2"
     ) -> dict[str, Any]:
         """
         Demonstrate QLoRA (Quantized LoRA) for memory-efficient fine-tuning.
@@ -318,7 +318,7 @@ class AdvancedQuantization:
         lora_config = LoraConfig(
             r=8,
             lora_alpha=16,
-            target_modules=["c_attn"] if "gpt2" in model_name else ["q_proj", "v_proj"],
+            target_modules=["Wqkv"] if "phi" in model_name else ["q_proj", "v_proj"],
             lora_dropout=0.1,
             bias="none",
             task_type="CAUSAL_LM",

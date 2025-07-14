@@ -1,0 +1,194 @@
+[
+  {
+    "original_text": "This product is absolutely amazing! Fast shipping and great quality.",
+    "cleaned_text": "This product is absolutely amazing! Fast shipping and great quality.",
+    "sentiment": "POSITIVE",
+    "sentiment_score": 0.9998853206634521,
+    "categories": [
+      "product quality",
+      "shipping"
+    ],
+    "category_scores": [
+      0.9965609312057495,
+      0.9816725254058838
+    ],
+    "priority": "normal",
+    "timestamp": 1752464068.739531
+  },
+  {
+    "original_text": "Terrible experience. The item arrived broken and customer service was unhelpful.",
+    "cleaned_text": "Terrible experience. The item arrived broken and customer service was unhelpful.",
+    "sentiment": "NEGATIVE",
+    "sentiment_score": 0.9996428489685059,
+    "categories": [
+      "customer service",
+      "shipping"
+    ],
+    "category_scores": [
+      0.9837790131568909,
+      0.8997030854225159
+    ],
+    "priority": "urgent",
+    "timestamp": 1752464068.739535
+  },
+  {
+    "original_text": "Good value for money, but packaging could be better.",
+    "cleaned_text": "Good value for money, but packaging could be better.",
+    "sentiment": "NEGATIVE",
+    "sentiment_score": 0.9916489124298096,
+    "categories": [
+      "packaging",
+      "pricing"
+    ],
+    "category_scores": [
+      0.989615261554718,
+      0.9001574516296387
+    ],
+    "priority": "normal",
+    "timestamp": 1752464068.739538
+  },
+  {
+    "original_text": "URGENT: Received wrong item. Need immediate refund!",
+    "cleaned_text": "URGENT: Received wrong item. Need immediate refund!",
+    "sentiment": "NEGATIVE",
+    "sentiment_score": 0.9994229078292847,
+    "categories": [
+      "customer service",
+      "shipping"
+    ],
+    "category_scores": [
+      0.9899827837944031,
+      0.8178257942199707
+    ],
+    "priority": "urgent",
+    "timestamp": 1752464068.7395399
+  },
+  {
+    "original_text": "The product works as described. Delivery was on time.",
+    "cleaned_text": "The product works as described. Delivery was on time.",
+    "sentiment": "POSITIVE",
+    "sentiment_score": 0.9923328161239624,
+    "categories": [
+      "product quality",
+      "shipping"
+    ],
+    "category_scores": [
+      0.9723863005638123,
+      0.901248037815094
+    ],
+    "priority": "normal",
+    "timestamp": 1752464068.7395442
+  },
+  {
+    "original_text": "Worst purchase ever! Complete waste of money. Want my refund NOW!",
+    "cleaned_text": "Worst purchase ever! Complete waste of money. Want my refund NOW!",
+    "sentiment": "NEGATIVE",
+    "sentiment_score": 0.9998012185096741,
+    "categories": [
+      "pricing",
+      "shipping"
+    ],
+    "category_scores": [
+      0.6930479407310486,
+      0.6236186623573303
+    ],
+    "priority": "high",
+    "timestamp": 1752464068.739546
+  },
+  {
+    "original_text": "Nice product but a bit overpriced compared to competitors.",
+    "cleaned_text": "Nice product but a bit overpriced compared to competitors.",
+    "sentiment": "NEGATIVE",
+    "sentiment_score": 0.9929465651512146,
+    "categories": [
+      "pricing",
+      "product quality"
+    ],
+    "category_scores": [
+      0.990196168422699,
+      0.9365023970603943
+    ],
+    "priority": "normal",
+    "timestamp": 1752464068.7395499
+  },
+  {
+    "original_text": "Package was damaged during shipping but product was fine.",
+    "cleaned_text": "Package was damaged during shipping but product was fine.",
+    "sentiment": "POSITIVE",
+    "sentiment_score": 0.9956854581832886,
+    "categories": [
+      "shipping",
+      "packaging"
+    ],
+    "category_scores": [
+      0.9859023094177246,
+      0.9724493026733398
+    ],
+    "priority": "urgent",
+    "timestamp": 1752464068.739551
+  },
+  {
+    "original_text": "Excellent customer service! They resolved my issue quickly.",
+    "cleaned_text": "Excellent customer service! They resolved my issue quickly.",
+    "sentiment": "POSITIVE",
+    "sentiment_score": 0.9997197985649109,
+    "categories": [
+      "customer service",
+      "shipping"
+    ],
+    "category_scores": [
+      0.9953395128250122,
+      0.44298839569091797
+    ],
+    "priority": "medium",
+    "timestamp": 1752464068.7395542
+  },
+  {
+    "original_text": "Product quality is okay but not worth the premium price.",
+    "cleaned_text": "Product quality is okay but not worth the premium price.",
+    "sentiment": "NEGATIVE",
+    "sentiment_score": 0.9939397573471069,
+    "categories": [
+      "product quality",
+      "pricing"
+    ],
+    "category_scores": [
+      0.9899840950965881,
+      0.8812543153762817
+    ],
+    "priority": "normal",
+    "timestamp": 1752464068.739558
+  },
+  {
+    "original_text": "Love it! Exceeded my expectations in every way.",
+    "cleaned_text": "Love it! Exceeded my expectations in every way.",
+    "sentiment": "POSITIVE",
+    "sentiment_score": 0.9998792409896851,
+    "categories": [
+      "product quality",
+      "customer service"
+    ],
+    "category_scores": [
+      0.973455011844635,
+      0.7991129159927368
+    ],
+    "priority": "normal",
+    "timestamp": 1752464068.73956
+  },
+  {
+    "original_text": "Shipping took forever and no tracking updates provided.",
+    "cleaned_text": "Shipping took forever and no tracking updates provided.",
+    "sentiment": "NEGATIVE",
+    "sentiment_score": 0.9995793700218201,
+    "categories": [
+      "shipping",
+      "customer service"
+    ],
+    "category_scores": [
+      0.9937552809715271,
+      0.6320828795433044
+    ],
+    "priority": "normal",
+    "timestamp": 1752464068.739564
+  }
+]
